@@ -43,5 +43,7 @@ namespace OpenHAB.Core.SDK
         /// </summary>
         /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         Task ResetConnection();
+
+        void StartItemUpdates();
     }
 }

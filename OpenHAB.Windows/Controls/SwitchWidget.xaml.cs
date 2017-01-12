@@ -1,4 +1,6 @@
-﻿using GalaSoft.MvvmLight.Messaging;
+﻿using System.ComponentModel;
+using Windows.UI.Core;
+using GalaSoft.MvvmLight.Messaging;
 using OpenHAB.Core.Messages;
 using OpenHAB.Core.Model;
 using Windows.UI.Xaml;
@@ -11,10 +13,29 @@ namespace OpenHAB.Windows.Controls
     /// </summary>
     public sealed partial class SwitchWidget : WidgetBase
     {
+        private bool _isOn;
+
         /// <summary>
         /// Gets or sets a value indicating whether the switch is on or off
         /// </summary>
-        public bool IsOn { get; set; }
+        public bool IsOn
+        {
+            get
+            {
+                return _isOn;
+            }
+
+            set
+            {
+                if (_isOn == value)
+                {
+                    return;
+                }
+
+                _isOn = value;
+                RaisePropertyChanged();
+            }
+        }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SwitchWidget"/> class.
@@ -28,8 +49,24 @@ namespace OpenHAB.Windows.Controls
         private void SwitchWidget_Loaded(object sender, RoutedEventArgs e)
         {
             IsOn = Widget.Item.State == "ON";
+            Widget.Item.PropertyChanged += OnItemPropertyChanged;
 
             VisualStateManager.GoToState(this, IsOn ? "OnState" : "OffState", false);
+        }
+
+        private void OnItemPropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName != nameof(Widget.Item.State))
+            {
+                return;
+            }
+
+            Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+             {
+                 IsOn = Widget.Item.State == "ON";
+                 VisualStateManager.GoToState(this, IsOn ? "OnState" : "OffState", true);
+             });
+
         }
 
         private void OnToggle()

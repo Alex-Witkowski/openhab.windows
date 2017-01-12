@@ -1,4 +1,5 @@
 ﻿using System;
+using GalaSoft.MvvmLight.Messaging;
 using GalaSoft.MvvmLight.Views;
 using Microsoft.Practices.ServiceLocation;
 using Microsoft.Practices.Unity;
@@ -32,6 +33,7 @@ namespace OpenHAB.Core.ViewModel
             _container.RegisterType<IOpenHAB, SDK.OpenHAB>();
             _container.RegisterType<ISettingsService, SettingsService>();
             _container.RegisterType<INavigationService, NavigationService>();
+            _container.RegisterInstance(Messenger.Default);
         }
 
         private void RegisterViewModels()

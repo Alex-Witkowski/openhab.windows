@@ -1,13 +1,18 @@
 ﻿using System.Xml.Linq;
+using GalaSoft.MvvmLight;
+using GalaSoft.MvvmLight.Messaging;
 using Newtonsoft.Json;
+using OpenHAB.Core.Messages;
 
 namespace OpenHAB.Core.Model
 {
     /// <summary>
     /// A class that represents an OpenHAB item
     /// </summary>
-    public class OpenHABItem
+    public class OpenHABItem : ObservableObject
     {
+        private string _state;
+
         /// <summary>
         /// Gets or sets the name of the OpenHAB item
         /// </summary>
@@ -26,7 +31,11 @@ namespace OpenHAB.Core.Model
         /// <summary>
         /// Gets or sets the state of the OpenHAB item
         /// </summary>
-        public string State { get; set; }
+        public string State
+        {
+            get { return _state; }
+            set { Set(ref _state, value); }
+        }
 
         /// <summary>
         /// Gets or sets the link of the OpenHAB item
@@ -38,6 +47,17 @@ namespace OpenHAB.Core.Model
         /// </summary>
         public OpenHABItem()
         {
+            Messenger.Default.Register<UpdateItemMessage>(this, HandleUpdateItemMessage);
+        }
+
+        private void HandleUpdateItemMessage(UpdateItemMessage message)
+        {
+            if (message.ItemName != Name)
+            {
+                return;
+            }
+
+            State = message.Value;
         }
 
         /// <summary>
@@ -45,6 +65,7 @@ namespace OpenHAB.Core.Model
         /// </summary>
         /// <param name="startNode">The XML from the OpenHAB server that represents this OpenHAB item</param>
         public OpenHABItem(XElement startNode)
+            : this()
         {
             ParseNode(startNode);
         }
@@ -54,6 +75,7 @@ namespace OpenHAB.Core.Model
         /// </summary>
         /// <param name="jsonObject">The JSON from the OpenHAB server that represents this OpenHAB item</param>
         public OpenHABItem(string jsonObject)
+            : this()
         {
             var item = JsonConvert.DeserializeObject<OpenHABItem>(jsonObject);
             Name = item.Name;

@@ -116,6 +116,7 @@ namespace OpenHAB.Core.ViewModel
 
             var sitemaps = await _openHabsdk.LoadSiteMaps(_version);
             Sitemaps = new ObservableCollection<OpenHABSitemap>(sitemaps);
+            _openHabsdk.StartItemUpdates();
         }
 
         private async Task LoadWidgets()
